@@ -14,5 +14,7 @@ int get_file_extension(spr_info*request) {
 	request->url_extension = strrchr(request->url, '/'); //finner siste forekomst av /
 	request->url_extension = strrchr(request->url_extension, '.'); //her finner vi hvis det er en fil, feks text.txt
 
+// Test github
+//HALOOOOO
 
 	
