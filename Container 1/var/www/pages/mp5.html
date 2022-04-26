@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/mp5.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="noe.png">
+    <title>Diktbase</title>
+    <script type="text/javascript" src="mp5.js"></script>
+</head>
+<body onload="{getAllPoems(); loginOrLogout(); getUsername(); getFullName(); showChangeDeletePoem(); checkServiceWorker();}">
+    <div class="topdiv">
+        <h1 class="headline">Gruppe 3 sin database</h1>
+        <div  class="userInfoDiv">
+            <form id="loginLogout" class="loginForm"></form>
+        </div>
+    </div>
+    <a class="homepageLink" href="http://localhost">Gruppe 3 sin hjemmeside</a>
+    <br>
+    <br>
+    <form id="showChangeDeletePoem"></form>
+    <br>
+    <div id="ettDikt"></div>
+    <br>
+    <div id="showChangePoem"></div>
+    <div id="showMakeNewPoem"></div>
+    <br>
+    <h2>Alle dikt:</h2>
+    <div id="alleDikt"></div>
+</body>
+</html>
