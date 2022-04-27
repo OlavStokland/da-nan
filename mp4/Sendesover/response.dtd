@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE response [
+<!ELEMENT response (status,statustext)>
+<!ELEMENT status (#PCDATA)>
+<!ELEMENT statustext (#PCDATA)>
+]>

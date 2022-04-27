@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE diktbase [
+<!ELEMENT diktbase (Dikt+)>
+<!ELEMENT Dikt (diktID,dikt,epost)>
+<!ELEMENT diktid (#PCDATA)>
+<!ELEMENT tekst (#PCDATA)>
+<!ELEMENT epost (#PCDATA)>
+]>

@@ -1,0 +1,88 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+.headline {
+    font-size: 5vw;
+    color: greenyellow;
+}
+
+.homepageLink {
+    color: white;
+    font-weight: bold;
+    font-size: 1.5vw;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.topdiv {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1vw;
+}
+
+table {
+    font-weight: bold;
+}
+
+.id {
+    padding: 10px;
+    text-align: center;
+}
+
+.loginform {
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+}
+
+.logininput {
+    height: 2vw;
+    margin-bottom: 1vw;
+    border-radius: 0.5vw;
+    padding: 0.3vw;
+}
+
+.loginlogoutbutton {
+    font-weight: bold;
+    width: 5vw;
+    height: 2vw;
+    align-self: center;
+}
+
+.diktforinnlogget {
+    padding: 10px;
+    width: 55vw;
+}
+
+.diktforalle {
+    padding: 10px;
+    width: 90vw;
+}
+
+.eier {
+    padding: 10px;
+    width: 12vw;
+}
+
+.buttons {
+    padding: 1vw;
+    font-weight: bold;
+    min-width: 10vw;
+    height: 3.5vw;
+    align-self: flex-end;
+    border-radius: 0.5vw;
+}
+
+.rowforms {
+    display: flex;
+    flex-direction: row;
+}
+
+table, th, td {
+    border: 2px solid white;
+    border-collapse: collapse;
+    padding: 7px;
+}

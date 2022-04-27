@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<members>
+	<member>
+		<name> olav stokland </name>
+		<age> 14 </age>
+		<gender> did you just assume my gender </gender>
+		<subject> Test subject at Area 51 </subject>
+	</member>
+	<member>
+		<name> Espen Disch Thorvaldsen </name>
+		<age> 76 </age>
+		<gender> unspecified </gender>
+		<subject> the cool subject </subject>
+	</member>
+</members>
+

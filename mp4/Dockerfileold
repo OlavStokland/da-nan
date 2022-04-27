@@ -1,0 +1,37 @@
+FROM httpd:alpine as konteiner1
+
+
+COPY ./cgi/api.cgi /usr/local/apache2/cgi-bin/
+COPY ./myhttp.conf /usr/local/apache2/conf/httpd.conf
+COPY ./diktbase.db /usr/local/apache2/diktbase.db
+COPY ./cgi/test.cgi /usr/local/apache2/cgi-bin/
+
+RUN apk update && apk add nano sqlite wget curl
+RUN apk add libxml2-utils && apk add util-linux
+RUN apk add --no-cache --upgrade bash
+RUN chmod -R 777 /usr/local/apache2/diktbase.db
+RUN chmod 755 /usr/local/apache2/cgi-bin/api.cgi
+RUN chmod 755 /usr/local/apache2/cgi-bin/test.cgi
+RUN chown -R www-data:www-data /usr/local/apache2
+
+CMD ["httpd","-D","FOREGROUND"]
+
+
+
+
+
+FROM httpd:alpine as konteiner2
+
+RUN apk add curl && apk add libxml2-utils && apk add util-linux
+
+COPY  /container3/ /usr/local/apache2/htdocs/
+COPY ./cgi/transfer.cgi /usr/local/apache2/cgi-bin/
+COPY ./cgi/test.cgi /usr/local/apache2/cgi-bin/
+COPY ./myhttp.conf /usr/local/apache2/conf/httpd.conf
+
+RUN chmod 755 /usr/local/apache2/cgi-bin/transfer.cgi
+RUN apk add libxml2-utils && apk add util-linux
+RUN apk add --no-cache --upgrade bash
+RUN chown -R www-data:www-data /usr/local/apache2
+RUN chmod 755 /usr/local/apache2/cgi-bin/test.cgi
+CMD ["httpd","-D","FOREGROUND"]
