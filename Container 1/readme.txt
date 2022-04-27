@@ -1,6 +1,7 @@
 Container 1 - MP1/2
 
-Denne mappen inneholder alle nødvendige filer for oppsett og kjøring av webserver på container 1 med riktig lenking av statiske filer, samt skript for opptstart, restart og nedstengning. 
+Denne mappen inneholder alle nødvendige filer for oppsett og kjøring av webserver, hjemmeside og web-applikasjon på container 1 med riktig lenking av statiske filer, samt skript for opptstart, restart og nedstengning.
+
 Statiske filer nyttet av de andre containerene, samt javascript-kode befinner seg også i denne containeren.
 
 NB: webserver.c kompileres og starter som en del av container-initialiseringen, kjør derfor kun skript som beskrevet nedenfor:
@@ -10,4 +11,4 @@ NB: webserver.c kompileres og starter som en del av container-initialiseringen, 
 	2: sletter container, dreper prosesser og initierer container på nytt
 	3. sletter container og dreper prosesser
 
-- Tut og kjør!
+- Webtjeneren og hjemmesiden når du på http://localhost - Tut og kjør!
