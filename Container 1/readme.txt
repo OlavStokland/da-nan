@@ -1,4 +1,4 @@
-Container 1 - MP1/2
+Container 1 - MP1/2 og 5
 
 Denne mappen inneholder alle nødvendige filer for oppsett og kjøring av webserver, hjemmeside og web-applikasjon på container 1 med riktig lenking av statiske filer, samt skript for opptstart, restart og nedstengning.
 
