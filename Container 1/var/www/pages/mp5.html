@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/mp5.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="noe.png">
-    <title>Diktbase</title>
+    <title>Diktdatabase</title>
     <script type="text/javascript" src="mp5.js"></script>
 </head>
 <body onload="{getAllPoems(); loginOrLogout(); getUsername(); getFullName(); showChangeDeletePoem(); checkServiceWorker();}">
     <div class="topdiv">
-        <h1 class="headline">Gruppe 3 sin database</h1>
-        <div  class="userInfoDiv">
-            <form id="loginLogout" class="loginForm"></form>
-        </div>
+	<a class="homepageLink" href="http://localhost">Tilbake til hjemmesiden</a>
+        <h1 class="headline">Gruppe 3 sin diktdatabase</h1>
     </div>
-    <a class="homepageLink" href="http://localhost">Gruppe 3 sin hjemmeside</a>
+    <div  class="userInfoDiv">
+            <form id="loginLogout" class="loginForm"></form>
+    </div>
+    <a class="diktInfo">Skriv inn diktet du ønsker å se:</a>
     <br>
     <br>
     <form id="showChangeDeletePoem"></form>
@@ -27,7 +27,6 @@
     <div id="showChangePoem"></div>
     <div id="showMakeNewPoem"></div>
     <br>
-    <h2>Alle dikt:</h2>
     <div id="alleDikt"></div>
 </body>
 </html>

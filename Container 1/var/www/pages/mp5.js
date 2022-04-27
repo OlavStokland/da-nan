@@ -10,20 +10,21 @@ function checkServiceWorker() {
 			const registration = navigator.serviceWorker.register('./serviceWorker.js')
 			if (registration.installing) {
 				console.log('Service worker installing');
-			} 
+			}
 			else if (registration.waiting) {
 				console.log('Service worker installed');
-			} 
+			}
 			else if (registration.active) {
 				console.log('Service worker active');
 			}
-        } catch (error) {
+        }
+	catch (error) {
 			console.error(`Registration failed with ${error}`);
         }
     }
 }
 
-//Funksjon for å sjekke om bruker er innlogget ved å sjekke om det finnes en gyldig cookie
+//Funksjon for å sjekke om bruker er innlogget ved å sjekke om det finnes en cookie med gyldig sesjons-ID
 function checkLogin() {
     const cookieValue = document?.cookie
   ?.split('; ')
@@ -32,7 +33,7 @@ function checkLogin() {
 
   if (cookieValue !== undefined) {
       isLoggedIn = true;
-  } 
+  }
   else {
       isLoggedIn = false;
   }
@@ -60,14 +61,14 @@ function login(event) {
 
         let username = document.getElementById("username").value;
         let password = document.getElementById("password").value;
-        
-		//Sender innloggingsinformasjon til APIet
+
+	//Sender innloggingsinformasjon til APIet
         fetch(`${myUrl}login`, {
             method: 'POST',
             body: "<user><username>"+username+"</username><password>"+password+"</password></user>",
             credentials: 'include',
         })
-		//Skriver svaret inn i et xml skjema
+	//Skriver svaret inn i et xml skjema
         .then(response => response.text())
         .then(data => {
             const parser = new DOMParser();
@@ -78,9 +79,9 @@ function login(event) {
             const loggedInFname = xml.getElementsByTagName("userfname")[0].textContent;
             const loggedInLname = xml.getElementsByTagName("userlname")[0].textContent;
             const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
-            
+
             if (callStatus == 1) {
-                
+
                 localStorage["loggedInEmail"] = loggedInEmail;
                 localStorage["loggedInFname"] = loggedInFname;
                 localStorage["loggedInLname"] = loggedInLname;
@@ -94,7 +95,7 @@ function login(event) {
 
 //Funksjon for å logge ut
 function logout() {
-   
+
     fetch(`${myUrl}logout`, {
         method: 'POST',
         credentials: 'include',
@@ -102,7 +103,7 @@ function logout() {
     .then(response => response.text())
     .then(data => {
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data, 
+        const xml = parser.parseFromString(data,
             "application/xml")
         const callStatus = xml.getElementsByTagName("status")[0].textContent;
         const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
@@ -111,7 +112,7 @@ function logout() {
             document.cookie= "session_id=; Max-Age=0; Path=/; SameSite=none; Secure";
         } else {
             alert(alertStatus);
-        } 
+        }
     })
 }
 
@@ -132,6 +133,7 @@ function getFullName() {
     }
 }
 
+//Funksjon for å vise felter og knapper for endring av dikt
 function showChangePoem(showChangePoemId, dikt) {
     document.getElementById("showMakeNewPoem").innerHTML=""
     document.getElementById("showChangePoem").innerHTML=""
@@ -142,6 +144,7 @@ function showChangePoem(showChangePoemId, dikt) {
     </form>`
 }
 
+//Funksjon for å for vise felter og knapper for oppretting av dikt
 function showMakeNewPoem() {
     document.getElementById("showChangePoem").innerHTML=""
     document.getElementById("showMakeNewPoem").innerHTML=""
@@ -152,12 +155,13 @@ function showMakeNewPoem() {
     </form>`
 }
 
+//Funksjon for å vise aksjonsknapper og datafelter for dikt (hvis man er logget inn)
 function showChangeDeletePoem() {
     checkLogin();
     if (isLoggedIn == true) {
         document.getElementById("showChangeDeletePoem").innerHTML+=
         `<input class="slettDiktButton" type="button" value="Lag nytt dikt" onclick="showMakeNewPoem()">
-        <input class="slettDiktButton" type="button" value="Slett alle egne dikt" onclick="deleteAllMyPoems()">
+        <input class="slettDiktButton" type="button" value="Slett alle egne dikt" onclick="deleteAllOwnPoems()">
         <input class="idInputField" type="text" placeholder="Dikt ID" value="" id="diktId">
         <input class="findPoemButton" type="button" value="Finn dikt" onclick="getOnePoem()">`
     } else {
@@ -169,7 +173,7 @@ function showChangeDeletePoem() {
 
 //Funksjon for å hente alle dikt fra databasen
 function getAllPoems() {
-    
+
     //Get kall for å hente alle dikt
     fetch(`${myUrl}dikt/`, {
         method: 'GET',
@@ -260,18 +264,19 @@ function getAllPoems() {
     })
 }
 
-function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som også i lenger ned bytte ut med
-    
+//Funksjon for å hente ett bestemt dikt
+function getOnePoem() {
+
     //Fjerner forrige resultat hvis det er noe
     document.getElementById("ettDikt").innerHTML="";
-    
+
     //Henter diktid som er tastet inn
     let id = document.getElementById("diktId").value;
 
     //Setter diktid feltet tomt etter at diktid er hentet
     document.getElementById("diktId").value = "";
-    
-    //Kjører GET kallet for å hente et dikt ved hjelp av id
+
+    //Kjører GET kall mot API for den bestemte dikt-IDen
     fetch(`${myUrl}dikt/${id}`, {
         method: 'GET',
         Origin: 'http://localhost'
@@ -282,7 +287,7 @@ function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som
         const xml = parser.parseFromString(data, 
             "application/xml")
 
-        //Antall tegn i diktet
+        //Teller antall tegn
         const exist = xml?.getElementsByTagName("dikt")[0]?.textContent;
 
         //Lagrer eposten til bruker som er logget inn
@@ -318,7 +323,6 @@ function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som
                     </tr>
                     </table>`
             }
-                
                 //Henter id, dikt og epost til valgt dikt fra databasen
                 const id = xml.getElementsByTagName("diktID")[0].childNodes[0].nodeValue;
                 const poem = xml.getElementsByTagName("tekst")[0].childNodes[0].nodeValue;
@@ -335,9 +339,9 @@ function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som
                     doChangePoem= "";
                 }
 
-                //Sender document med html for å vise diktet som er valgt
+                //Sender HTML-dokument med det valgte diktet
                 if (isLoggedIn == true) {
-                    document.getElementById("test2").innerHTML+= 
+                    document.getElementById("test2").innerHTML+=
                         `<tr>
                             <td class='diktID'>${id}</td>
                             <td class='tekst'>${poem}</td>
@@ -346,7 +350,7 @@ function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som
                             <td class='slettDikt'>${doChangePoem}</td>
                         </tr>`
                 } else {
-                    document.getElementById("test2").innerHTML+= 
+                    document.getElementById("test2").innerHTML+=
                         `<tr>
                             <td class='diktID'>${id}</td>
                             <td class='tekst'>${poem}</td>
@@ -358,12 +362,12 @@ function getOnePoem() { //Endre slik at bruker bestemmer id som dikt skal ha som
     })
 }
 
-
-
+//Funksjon for å legge til et nytt dikt
 function addNewPoem() {
 
     let newPoem = document.getElementById("addPoem").value;
 
+    //POST kall mot APIet
     fetch(`${myUrl}dikt`, {
         method: 'POST',
         credentials: 'include',
@@ -380,15 +384,15 @@ function addNewPoem() {
             location.reload();
         } else {
             alert(alertStatus);
-        } 
+        }
     })
 }
 
-
-
+//Funksjon for å endre et bestemt dikt. Nytter PUT for å oppdatere verdi i databasen
 function changePoem(id) {
     let changedPoem = document.getElementById("changedPoem").value;
 
+    //PUT kall mot API
     fetch(`${myUrl}dikt/${id}`, {
         method: 'PUT',
         credentials: 'include',
@@ -397,7 +401,7 @@ function changePoem(id) {
     .then(response => response.text())
     .then(data => {
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data, 
+        const xml = parser.parseFromString(data,
             "application/xml")
         const callStatus = xml.getElementsByTagName("status")[0].textContent;
         const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
@@ -405,10 +409,11 @@ function changePoem(id) {
             location.reload();
         } else {
             alert(alertStatus);
-        } 
+        }
     })
 }
 
+//Funksjon for å slette et bestemt dikt. Nytter Delete for å fjerne et valgt innslag (diktID) fra databasen
 function deleteOnePoem(id) {
 
     fetch(`${myUrl}dikt/${id}`, {
@@ -426,11 +431,12 @@ function deleteOnePoem(id) {
             location.reload();
         } else {
             alert(alertStatus);
-        } 
+        }
     })
 }
 
-function deleteAllMyPoems() {
+//Funksjon for å slette alle egne dikt. Nytter Delete på alle dikt med matchende eier (e-post) i databasen
+function deleteAllOwnPoems() {
 
     if (confirm("Er du sikker på at du vil slette alle diktene dine?") == true) {
         fetch(`${myUrl}dikt`, {
@@ -440,7 +446,7 @@ function deleteAllMyPoems() {
         .then(response => response.text())
         .then(data => {
             const parser = new DOMParser();
-            const xml = parser.parseFromString(data, 
+            const xml = parser.parseFromString(data,
                 "application/xml")
             const callStatus = xml.getElementsByTagName("status")[0].textContent;
             const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
@@ -448,7 +454,7 @@ function deleteAllMyPoems() {
                 location.reload();
             } else {
                 alert(alertStatus);
-            } 
+            }
         })
-    } 
+    }
 }
