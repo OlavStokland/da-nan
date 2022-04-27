@@ -1,26 +1,30 @@
 body {
-    background-color: black;
-    color: white;
+    background-color: antiquewhite;
+    color: black;
     width: 98vw;
 }
 
 .topdiv {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
     padding: 1vw;
 }
 
 .headline {
     text-align: center;
-    font-size: 5vw;
-    color: greenyellow;
+    font-size: 3vw;
+    color: black;
 
 }
 
 .userInfoDiv {
     display: flex;
     flex-direction: column;
+    text-align: center;
+    margin-left: 35vw;
+    margin-right: 35vw;
+    margin-bottom: 1vw;
+    padding: 10px;
 }
 
 .userInfo {
@@ -48,18 +52,27 @@ body {
 }
 
 .homepageLink {
-    color: white;
+    color: black;
     font-weight: bold;
-    font-size: 1.5vw;
+    font-size: 1vw;
     padding: 10px;
     margin-bottom: 10px;
 }
 
+.diktInfo {
+    color: black;
+    font-weight: bold;
+    font-size: 1vw;
+    padding: 25px;
+    margin-bottom: 10px;
+}
+
+
 #alleDikt {
     display: flex;
     flex-direction: column;
-    border: 1px solid white;
-    background-color: white;
+    border: 1px solid black;
+    background-color: black;
     width: 90vw;
 }
 
@@ -129,7 +142,7 @@ body {
 }
 
 .findPoemButton {
-    height: 3.5vw;
+    height: 3.2vw;
     padding: 1vw;
     font-weight: bold;
     border-radius: 0.5vw;
