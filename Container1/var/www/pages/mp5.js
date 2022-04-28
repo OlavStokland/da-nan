@@ -1,7 +1,7 @@
 let myUrl = 'http://localhost:8081/cgi-bin/api.cgi/';
 let isLoggedIn = false;
 
-//Funksjon for å sjekke om serviveworker er installert i nettleser. Forsøker å registrere hvis ikke
+//Funksjon for å sjekke om serviceworker er registrert i nettleser. Forsøker å registrere hvis ikke
 function checkServiceWorker() {
     if (!('serviceWorker' in navigator)) {
         console.log("Your browser does not support 'ServiceWorker'");
@@ -44,7 +44,8 @@ function loginOrLogout() {
     checkLogin();
     if (isLoggedIn == true) {
         document.getElementById("loginLogout").innerHTML+=
-            `<h4 class="userInfo" id="nameOfLoggedInUser"></h4>
+            `<h4>Logget inn som bruker: </h4>
+	    <h4 class="userInfo" id="nameOfLoggedInUser"></h4>
             <input class="button" type="button" value="Logg ut" onclick="logout()">`
     } else {
         document.getElementById("loginLogout").innerHTML+=
@@ -72,20 +73,19 @@ function login(event) {
         .then(response => response.text())
         .then(data => {
             const parser = new DOMParser();
-            const xml = parser.parseFromString(data, 
+            const xml = parser.parseFromString(data,
                 "application/xml")
             const callStatus = xml.getElementsByTagName("status")[0].textContent;
+	    const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
             const loggedInEmail = xml.getElementsByTagName("useremail")[0].textContent;
-            const loggedInFname = xml.getElementsByTagName("userfname")[0].textContent;
-            const loggedInLname = xml.getElementsByTagName("userlname")[0].textContent;
-            const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
+            const loggedInFname = xml.getElementsByTagName("firstname")[0].textContent;
+            const loggedInLname = xml.getElementsByTagName("lastname")[0].textContent;
 
             if (callStatus == 1) {
-
+		location.reload();
                 localStorage["loggedInEmail"] = loggedInEmail;
                 localStorage["loggedInFname"] = loggedInFname;
                 localStorage["loggedInLname"] = loggedInLname;
-                location.reload();
             } else {
                 alert(alertStatus);
             }
@@ -128,7 +128,7 @@ function getUsername() {
 function getFullName() {
     checkLogin();
     if (isLoggedIn) {
-        let userName = localStorage["loggedInFname"] + localStorage["loggedInLname"];
+        let userName = localStorage["loggedInFname"] + ' ' + localStorage["loggedInLname"];
         document.getElementById("nameOfLoggedInUser").innerHTML+=userName;
     }
 }
@@ -175,7 +175,7 @@ function showChangeDeletePoem() {
 function getAllPoems() {
 
     //Get kall for å hente alle dikt
-    fetch(`${myUrl}dikt/`, {
+    fetch(`${myUrl}Dikt`, {
         method: 'GET',
         Origin: 'http://localhost'
     })
@@ -183,11 +183,11 @@ function getAllPoems() {
     .then(response => response.text())
     .then(data => {
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data, 
+        const xml = parser.parseFromString(data,
             "application/xml")
 
-        //Teller antall dikt 
-        const count = xml.getElementsByTagName("dikt").length
+        //Teller antall dikt
+        const count = xml.getElementsByTagName("Dikt").length
 
         //Henter epost til innlogget bruker
         const userEmail = localStorage["loggedInEmail"];
@@ -196,7 +196,7 @@ function getAllPoems() {
         let deletePoem;
         let doChangePoem;
 
-		//Sjekker om bruker er logget inn eller ikke
+	//Sjekker om bruker er logget inn eller ikke
         checkLogin();
 
         //Sjekker om det finnes noen dikt i databasen
@@ -229,15 +229,16 @@ function getAllPoems() {
                 //Henter ut id, dikt og epost til hver av diktene
                 const id = xml.getElementsByTagName("diktID")[i].childNodes[0].nodeValue;
                 const tekst = xml?.getElementsByTagName("tekst")[i]?.childNodes[0]?.nodeValue;
-                const epost = xml.getElementsByTagName("epostadresse")[i].childNodes[0].nodeValue;
+                const epost = xml.getElementsByTagName("epost")[i].childNodes[0].nodeValue;
 
                 //Hvis innlogget bruker er samme som eier av dikt vises knapper for endring og sletting
                 if (userEmail === epost) {
                     deletePoem = `<input type='button' class='slettDiktButton'
                     value='Slett dikt' onClick='deleteOnePoem(${id})'>`;
-                    doChangePoem = `<input type='button' class='slettDiktButton' 
+                    doChangePoem = `<input type='button' class='slettDiktButton'
                     value='Endre dikt' onClick='showChangePoem(${id}, "${tekst}")'>`;
-                } else {
+                }
+		else {
                     deletePoem = "";
                     doChangePoem= "";
                 }
@@ -277,7 +278,7 @@ function getOnePoem() {
     document.getElementById("diktId").value = "";
 
     //Kjører GET kall mot API for den bestemte dikt-IDen
-    fetch(`${myUrl}dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}`, {
         method: 'GET',
         Origin: 'http://localhost'
     })
@@ -288,7 +289,7 @@ function getOnePoem() {
             "application/xml")
 
         //Teller antall tegn
-        const exist = xml?.getElementsByTagName("dikt")[0]?.textContent;
+        const exist = xml?.getElementsByTagName("Dikt")[0]?.textContent;
 
         //Lagrer eposten til bruker som er logget inn
         const userEmail = localStorage["loggedInEmail"];
@@ -326,17 +327,17 @@ function getOnePoem() {
                 //Henter id, dikt og epost til valgt dikt fra databasen
                 const id = xml.getElementsByTagName("diktID")[0].childNodes[0].nodeValue;
                 const poem = xml.getElementsByTagName("tekst")[0].childNodes[0].nodeValue;
-                const email = xml.getElementsByTagName("epostadresse")[0].childNodes[0].nodeValue;
+                const epost = xml.getElementsByTagName("epost")[0].childNodes[0].nodeValue;
 
                 //Hvis eier av dikt er samme som er logget inn, vis knappene, hvis ikke: ikke vis dem
-                if (userEmail === email) {
+                if (userEmail === epost) {
                     deletePoem = `<input type='button' class='slettDiktButton'
                     value='Slett dikt' onClick='deleteOnePoem(${id})'>`;
-                    doChangePoem = `<input type='button' class='slettDiktButton' 
+                    doChangePoem = `<input type='button' class='slettDiktButton'
                     value='Endre dikt' onClick='showChangePoem(${id}, "${poem}")'>`;
                 } else {
-                    deletePoem = "";
-                    doChangePoem= "";
+                   deletePoem = "";
+                   doChangePoem = "";
                 }
 
                 //Sender HTML-dokument med det valgte diktet
@@ -345,7 +346,7 @@ function getOnePoem() {
                         `<tr>
                             <td class='diktID'>${id}</td>
                             <td class='tekst'>${poem}</td>
-                            <td class='epost'>${email}</td>
+                            <td class='epost'>${epost}</td>
                             <td class='slettDikt'>${deletePoem}</td>
                             <td class='slettDikt'>${doChangePoem}</td>
                         </tr>`
@@ -368,7 +369,7 @@ function addNewPoem() {
     let newPoem = document.getElementById("addPoem").value;
 
     //POST kall mot APIet
-    fetch(`${myUrl}dikt`, {
+    fetch(`${myUrl}Dikt`, {
         method: 'POST',
         credentials: 'include',
         body: "<dikt><tekst>"+newPoem+"</tekst></dikt>"
@@ -376,7 +377,7 @@ function addNewPoem() {
     .then(response => response.text())
     .then(data => {
         const parser = new DOMParser();
-        const xml = parser.parseFromString(data, 
+        const xml = parser.parseFromString(data,
             "application/xml")
         const callStatus = xml.getElementsByTagName("status")[0].textContent;
         const alertStatus = xml.getElementsByTagName("statustext")[0].textContent;
@@ -393,7 +394,7 @@ function changePoem(id) {
     let changedPoem = document.getElementById("changedPoem").value;
 
     //PUT kall mot API
-    fetch(`${myUrl}dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}`, {
         method: 'PUT',
         credentials: 'include',
         body: "<dikt><tekst>"+changedPoem+"</tekst></dikt>"
@@ -416,7 +417,7 @@ function changePoem(id) {
 //Funksjon for å slette et bestemt dikt. Nytter Delete for å fjerne et valgt innslag (diktID) fra databasen
 function deleteOnePoem(id) {
 
-    fetch(`${myUrl}dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}`, {
         method: 'DELETE',
         credentials: 'include',
     })
@@ -439,7 +440,7 @@ function deleteOnePoem(id) {
 function deleteAllOwnPoems() {
 
     if (confirm("Er du sikker på at du vil slette alle diktene dine?") == true) {
-        fetch(`${myUrl}dikt`, {
+        fetch(`${myUrl}Dikt`, {
             method: 'DELETE',
             credentials: 'include',
         })
