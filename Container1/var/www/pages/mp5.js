@@ -64,7 +64,7 @@ function login(event) {
         let password = document.getElementById("password").value;
 
 	//Sender innloggingsinformasjon til APIet
-        fetch(`${myUrl}login`, {
+        fetch(`${myUrl}login/`, {
             method: 'POST',
             body: "<user><username>"+username+"</username><password>"+password+"</password></user>",
             credentials: 'include',
@@ -96,7 +96,7 @@ function login(event) {
 //Funksjon for å logge ut
 function logout() {
 
-    fetch(`${myUrl}logout`, {
+    fetch(`${myUrl}logout/`, {
         method: 'POST',
         credentials: 'include',
     })
@@ -175,7 +175,7 @@ function showChangeDeletePoem() {
 function getAllPoems() {
 
     //Get kall for å hente alle dikt
-    fetch(`${myUrl}Dikt`, {
+    fetch(`${myUrl}Dikt/`, {
         method: 'GET',
         Origin: 'http://localhost'
     })
@@ -278,7 +278,7 @@ function getOnePoem() {
     document.getElementById("diktId").value = "";
 
     //Kjører GET kall mot API for den bestemte dikt-IDen
-    fetch(`${myUrl}Dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}/`, {
         method: 'GET',
         Origin: 'http://localhost'
     })
@@ -369,7 +369,7 @@ function addNewPoem() {
     let newPoem = document.getElementById("addPoem").value;
 
     //POST kall mot APIet
-    fetch(`${myUrl}Dikt`, {
+    fetch(`${myUrl}Dikt/`, {
         method: 'POST',
         credentials: 'include',
         body: "<dikt><tekst>"+newPoem+"</tekst></dikt>"
@@ -394,7 +394,7 @@ function changePoem(id) {
     let changedPoem = document.getElementById("changedPoem").value;
 
     //PUT kall mot API
-    fetch(`${myUrl}Dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}/`, {
         method: 'PUT',
         credentials: 'include',
         body: "<dikt><tekst>"+changedPoem+"</tekst></dikt>"
@@ -417,7 +417,7 @@ function changePoem(id) {
 //Funksjon for å slette et bestemt dikt. Nytter Delete for å fjerne et valgt innslag (diktID) fra databasen
 function deleteOnePoem(id) {
 
-    fetch(`${myUrl}Dikt/${id}`, {
+    fetch(`${myUrl}Dikt/${id}/`, {
         method: 'DELETE',
         credentials: 'include',
     })
@@ -440,7 +440,7 @@ function deleteOnePoem(id) {
 function deleteAllOwnPoems() {
 
     if (confirm("Er du sikker på at du vil slette alle diktene dine?") == true) {
-        fetch(`${myUrl}Dikt`, {
+        fetch(`${myUrl}Dikt/`, {
             method: 'DELETE',
             credentials: 'include',
         })
