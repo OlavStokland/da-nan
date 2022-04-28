@@ -5,7 +5,7 @@
     <xsl:template match="/">
 
         <html>
-            <head><link rel="stylesheet" type="text/css" href="http://10.35.20.4:80/pages/css/diktbase.css" /></head>
+            <head><link rel="stylesheet" type="text/css" href="http://localhost/pages/css/diktbase.css" /></head>
             <body>
                 <h1>Diktbase</h1>
                 <table border="1">
