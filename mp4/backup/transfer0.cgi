@@ -22,7 +22,7 @@ current=$(echo $cookie | cut -f2 -d'=')
 html+=$(cat << EOF
 	<!DOCTYPE html>
 	<html>
-	<head><link rel="stylesheet" href="http://10.35.20.4:80/pages/css/transfer.css"><title>diktbase</title></head>
+	<head><link rel="stylesheet" href="http://10.35.20.4:80/transfer.css"><title>diktbase</title></head>
 	<body>
 	<div class "divider">
 		<h1 class="headline"> "Databasen til gruppe 3"</h1>

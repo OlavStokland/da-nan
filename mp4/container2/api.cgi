@@ -48,7 +48,7 @@ function character_to_byte() {
 function get_all_response() { #legger en response for hver request
 	response="<?xml version='1.0' encoding='UTF-8'?>"
 	response+="<?xml-stylesheet type='text/xsl' href='http://10.35.20.4:8081/diktbase.xsl'?>" #change for hosts
-	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:8082/diktbase.dtd'>"
+	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:80/pages/diktbase.dtd'>"
 	response+="<diktbase>"$1"</diktbase>"
 character_to_byte "$response"
 }
@@ -57,7 +57,7 @@ character_to_byte "$response"
 
 function get_response() { #legger til en response for error requests
 	response="<?xml version='1.0' encoding='UTF-8'?>"
-	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:8082/response.dtd'>" #change for hosts
+	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:80/pages/response.dtd'>" #change for hosts
 	response+="<response><status>"$1"</status><statustext>"$2"</statustext><sessionid>"$3"</sessionid><mail>"$4"</mail><firstname>"$5"</firstname><lastname>"$6"</lastname></response>"
 character_to_byte "$response"
 }
@@ -189,7 +189,7 @@ elif [ ${request_string[3]} = 'logout' ]; then
 			poem_new=$(xmllint --xpath "//tekst/text()" - <<<"$xml_data") # får nytt dikt fra body parameteret i xml
 
 			previous_id=$(sqlite3 $db_path "SELECT diktID FROM Dikt ORDER BY diktID DESC LIMIT 1;") #finner siste diktID i databasen
-			new_id="$previous_id + 1"
+			let "new_id=$previous_id + 1"
 
 			sqlite3 $db_path "INSERT INTO Dikt VALUES('$new_id','$poem_new','$state_email');" #inserter nytt dikt til databasen
 
@@ -216,14 +216,14 @@ if [ "$REQUEST_METHOD" = "PUT" ]; then
 
 		if [ ${request_string[4]} = $url_end ]; then
 
-			owner=$(sqlite3 $db_path "SELECT epost FROM dikt WHERE diktID='$url_end';") #finn epostadresse som har riktig ID
+			owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID='$url_end';") #finn epostadresse som har riktig ID
 
 			if [ "$owner" == "$state_email" ]; then
 
 				xml_data=$BODY
 				change=$(xmllint --xpath "//tekst/text()" - <<<"$xml_data")
 
-				sqlite3 $db_path "UPDATE Dikt SET dikt='$change' WHERE diktID = '$url_end' AND epost='$state_email';"
+				sqlite3 $db_path "UPDATE Dikt SET dikt='$change' WHERE diktID='$url_end' AND epost='$state_email';"
 
 				get_response "1" "Diktnr $url_end er endret" "$logged_in_session_id" "$state_email"
 			else
@@ -256,14 +256,14 @@ if [ "$REQUEST_METHOD" = "DELETE" ]; then
 
 			get_response "1" "alle dikt som er tilknyttet $state_email er slettet" "$logged_in_session_id" "$state_email"
 # sletter dikt gitt diktID
-		elif [ ${request_String[3]} = "dikt" -a ${request_string[4]} = $url_end ]; then
-			 # sletter dikt gitt diktID
-				owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID= '$url_end';") # siste del av url er sesjonsid
+		elif [ ${request_string[4]} = $url_end ]; then
+
+				owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID='$url_end';") # siste del av url er sesjonsid
 
 				if [ "$owner" == "$state_email" ]; then
 				 #er epost like så er det sikkert at det er egen ID basert på sjekken i databasen
 
-					sqlite3 $db_path "DELETE FROM Dikt WHERE DiktID '=$url_end';"
+					sqlite3 $db_path "DELETE FROM Dikt WHERE DiktID='$url_end';"
 
 					get_response "1" "Dikt $url_end slettet fra følgende bruker:" "$logged_in_session_id" "$state_email"
 				else
