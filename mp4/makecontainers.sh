@@ -20,23 +20,25 @@ docker rmi web;
 
 echo "old instance removed, initiating new one ."
 
-
+sudo systemctl stop docker
+sudo dockerd docker daemon --userns-remap=default &
+sudo systemctl start docker
 
 # bygger 3 kontainere basert på docker filen
 docker build -f Dockerfile . -t mp4http --target base_docker
 docker build -f container2/Dockerfile . -t api
 docker build -f container3/Dockerfile . -t web
 
-# kjører opp containere, med cgroups, capabilities og namespaces
+# kjører opp containere, med, capabilities og namespaces
 # -d for kjøre i bakgrunnen
 
-docker run -d --privileged --cap-drop=all \
+docker run -d  --userns=dockremap --cap-drop=all \
  --cap-add=CHOWN --cap-add=AUDIT_WRITE --cap-add=DAC_OVERRIDE \
  --cap-add=KILL --cap-add=NET_RAW --cap-add=NET_BIND_SERVICE \
  --cpu-shares 512 --pids-limit 200 --memory 512m \
  --net=bridge --name api -p 8081:80 api
 
-docker run -d --privileged --cap-drop=all \
+docker run -d --cap-drop=all \
  --cap-add=CHOWN --cap-add=AUDIT_WRITE --cap-add=DAC_OVERRIDE \
  --cap-add=KILL --cap-add=NET_RAW --cap-add=NET_BIND_SERVICE \
  --cpu-shares 512 --pids-limit 200 --memory 512m \

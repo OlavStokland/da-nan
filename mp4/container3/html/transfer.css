@@ -1,11 +1,11 @@
 body {
-    background-color: black;
+    background-color: grey;
     color: white;
 }
 
 .headline {
     font-size: 5vw;
-    color: greenyellow;
+    color: blue;
 }
 
 .homepageLink {

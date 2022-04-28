@@ -22,7 +22,7 @@ current=$(echo $cookie | cut -f2 -d'=')
 html+=$(cat << EOF
 	<!DOCTYPE html>
 	<html>
-	<head><link rel="stylesheet" href="http://10.35.20.4:80/pages/css/transfer.css"><title>diktbase</title></head>
+	<head><link rel="stylesheet" href="http://10.35.20.4:8082/transfer.css"><title>diktbase</title></head>
 	<body>
 	<div class "divider">
 		<h1 class="headline"> "Databasen til gruppe 3"</h1>
@@ -50,7 +50,7 @@ else #HVis cookie finnes, gi mulighet til å logge ut eller mulighet for å utf�
                 <input class="loginlogoutbutton" type="submit" name="logout" value="logout">
             </form>
             </div>
-            <a class="homepageLink" href="http://10.35.20.4:80">Tilbake til hovedsiden</a>
+            <a class="homepageLink" href="http://10.35.20.4:8082">Tilbake til hovedsiden</a>
             <br>
             <br>
             <div class="rowforms">
@@ -81,7 +81,7 @@ htmlbody=$(echo $BODY | cut -f1 -d'=')
 poemid=$(echo $BODY | cut -f2 -d'=')
 
 if [ $htmlbody == "getonepoem" ]; then #her henter vi ut et dikt fra database for id nummer
-		poem=$(curl -H "Accept: application/xml" -X GET $database"Dikt/$poemid")
+		poem=$(curl -H "Accept: application/xml" -X GET $database"Dikt/$poemid/")
 		one_poem=$(xmllint --xpath "//diktID/text()" - <<<"$poem")
 		text=$(xmllint --format --xpath "//tekst/text()" - <<<"$poem")
  		owner=$(xmllint --xpath "//epost/text()" - <<<"$poem")
@@ -95,6 +95,7 @@ if [ $testus == "heisann" ]; then
 else
 		button_change=""
 		button_delete=""
+
 fi
 
 	if [ -z $cookie ]; then #Vis liste av dikt når bruker ikke er innlogget
@@ -235,7 +236,7 @@ if [ $split_equal == "login" ]; then
 	email=$(echo $BODY | sed s/%40/@/g | cut -f1 -d'&' | cut -f2 -d'=')
 	password=$(echo $BODY | cut -f3 -d'=')
 	info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -d "<user><username>$email</username><password>$password</password></user>" -X POST $database"login")
-
+  curl -H
 	status=$(xmllint --xpath "//status/text()" - <<<"$info")
 	session_id=$(xmllint --xpath "//sessionid/text()" - <<<"$info")
 	email_login=$(xmllint --xpath "//useremail/text()" - <<<"$info")
@@ -251,9 +252,9 @@ if [ $split_equal == "login" ]; then
 	else
 		output+="ikke logget inn <br>"
 	fi
-#
+
 elif [ $split_equal == "logout" ]; then
-		info=$(curl --cookie "session_id=$current" -X POST $database"logout")
+		info=$(curl --cookie "session_id=$current" -X POST $database"logout/")
 		status=$(xmllint --xpath "//status/text()" - <<<"$info")
 		output+="Status: $status <br>"
 
@@ -264,14 +265,15 @@ elif [ $split_equal == "logout" ]; then
 			output+="Logget inn <br>"
 		fi
 
+
 elif [ $split_equal == "newpoem" ]; then #en liten språkvask slik at alle bokstaver i nordisk alfabet fungerer med sed subititute/urlencoded/global
 	new_poem=$(echo $BODY | sed s/%C3%B8/ø/g | sed s/%C3%A5/å/g | sed s/%2C/,/g | sed s/%C3%A6/æ/g | sed s/%3F/?/g | sed s/%3B/';'/g | cut -f2 -d'=' | sed s/+/" "/g)
-    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -d "<dikt><tekst>$new_poem</tekst></dikt>" -X POST $database"Dikt")
+    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -d "<dikt><tekst>$new_poem</tekst></dikt>" -X POST $database"Dikt/")
 #en liten språkvask slik at alle bokstaver i nordisk alfabet fungerer med sed subititute/urlencoded/global
 
 elif [ $split_equal == "deleteallmypoems" ]; then
-    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -X DELETE $database"Dikt")
-
+    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -X DELETE $database"Dikt/")
+		curl http://10.35.20.4:8082/cgi-bin/transfer.cgi
 elif [ $split_equal == "showmakenewpoem" ]; then
     html+=$(
         cat << EOF
@@ -284,12 +286,14 @@ EOF
 
 elif [ $split_plus == "deleteonepoem" ]; then
     id_to_delete=$(echo $BODY | cut -f2 -d'+' | cut -f1 -d'=')
-    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -X DELETE $database"Dikt/$id_to_delete")
+    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -X DELETE $database"Dikt/$id_to_delete/")
+
 
 elif [ $split_plus == "changepoem" ]; then
     changed_poem=$(echo $BODY | sed s/%C3%B8/ø/g | sed s/%C3%A5/å/g | sed s/%2C/,/g | sed s/%C3%A6/æ/g | sed s/%3F/?/g | sed s/%3B/';'/g | cut -f2 -d'=' | sed s/+/" "/g)
     id_to_change=$(echo $BODY | cut -f2 -d'+' | cut -f1 -d'=')
-    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -d "<dikt><tekst>$changed_poem</tekst></dikt>" -X PUT $database"Dikt/$id_to_change")
+    info=$(curl -H "Accept: application/xml" --cookie "session_id=$current" -d "<dikt><tekst>$changed_poem</tekst></dikt>" -X PUT $database"Dikt/$id_to_change/")
+
 
 elif [ $split_plus == "showchangepoem" ]; then
     id_change_poem=$(echo $BODY | cut -f2 -d'+')

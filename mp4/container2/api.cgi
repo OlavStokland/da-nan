@@ -48,7 +48,7 @@ function character_to_byte() {
 function get_all_response() { #legger en response for hver request
 	response="<?xml version='1.0' encoding='UTF-8'?>"
 	response+="<?xml-stylesheet type='text/xsl' href='http://10.35.20.4:8081/diktbase.xsl'?>" #change for hosts
-	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:80/pages/diktbase.dtd'>"
+	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:8082/pages/diktbase.dtd'>"
 	response+="<diktbase>"$1"</diktbase>"
 character_to_byte "$response"
 }
@@ -57,7 +57,7 @@ character_to_byte "$response"
 
 function get_response() { #legger til en response for error requests
 	response="<?xml version='1.0' encoding='UTF-8'?>"
-	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:80/pages/response.dtd'>" #change for hosts
+	response+="<!DOCTYPE response SYSTEM 'http://10.35.20.4:8082/pages/response.dtd'>" #change for hosts
 	response+="<response><status>"$1"</status><statustext>"$2"</statustext><sessionid>"$3"</sessionid><mail>"$4"</mail><firstname>"$5"</firstname><lastname>"$6"</lastname></response>"
 character_to_byte "$response"
 }
