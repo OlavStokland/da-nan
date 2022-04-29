@@ -3,8 +3,4 @@
     "description": "Brukes for å se og endre dikt",
     "display": "standalone",
     "start_url": "/",
-    "icons": [{
-        "src": "./noe.png",
-        "sizes": "225x225"
-    }]
 }
