@@ -18,7 +18,7 @@ database=http://10.35.20.4:8081/cgi-bin/api.cgi/
 
 
 current=$(echo $cookie | cut -f2 -d'=')
-#skriver ut header
+#skriver http header
 html+=$(cat << EOF
 	<!DOCTYPE html>
 	<html>
@@ -77,17 +77,18 @@ html+=$(
     <br>
 EOF
 )
+# deler opp URL, henter først diktinfo, deretter id
 htmlbody=$(echo $BODY | cut -f1 -d'=')
 poemid=$(echo $BODY | cut -f2 -d'=')
-
+#curl mot databasen at man skal hente dikt på spesifikk id
 if [ $htmlbody == "getonepoem" ]; then #her henter vi ut et dikt fra database for id nummer
 		poem=$(curl -H "Accept: application/xml" -X GET $database"Dikt/$poemid/")
 		one_poem=$(xmllint --xpath "//diktID/text()" - <<<"$poem")
 		text=$(xmllint --format --xpath "//tekst/text()" - <<<"$poem")
  		owner=$(xmllint --xpath "//epost/text()" - <<<"$poem")
-
+#XML format av motatt dikt
 		testus="heisann"
-
+#knapper for å endre eller slette
 if [ $testus == "heisann" ]; then
 		button_change="<form method=\"POST\"><input class=\"buttons\" type=\"submit\" name=\"showchangepoem\" $one_poem !$text\" value= \"Endre\"></form>"
 		button_delete="<form method=\"POST\"><input class=\"buttons\" type=\"submit\" name= \"deleteonepoem\" $text\" value=\"Slett\"></form>"
@@ -115,24 +116,24 @@ fi
 EOF
 		)
 	else
-			html+=$( # Vis dikt når bruker er innlogget
-					cat << EOF
-							<table border='1'>
-							<tr>
-									<th class="id">Id</th>
-									<th class="dikt">dikt</th>
-									<th class="eier">Eier</th>
-									<th>Endre dikt</th>
-									<th>Slette dikt</th>
-							</tr>
-							<tr>
-									<td class="id">$one_poem</td>
-									<td class="dikt">$text</td>
-									<td class="eier">$owner</td>
-									<td>$button_change</td>
-									<td>$button_delete</td>
+		html+=$( #Vis dikt når bruker er innlogget
+		cat << EOF
+			<table border='1'>
+			<tr>
+				<th class="id">Id</th>
+				<th class="dikt">dikt</th>
+				<th class="eier">Eier</th>
+				<th>Endre dikt</th>
+				<th>Slette dikt</th>
+			</tr>
+			<tr>
+				<td class="id">$one_poem</td>
+				<td class="dikt">$text</td>
+				<td class="eier">$owner</td>
+				<td>$button_change</td>
+				<td>$button_delete</td>
 EOF
-			)
+		)
 	fi
 fi
 
@@ -142,7 +143,7 @@ poems=$(curl -H "Accept: application/xml" -X GET $database"Dikt/")
 poems_id=$(xmllint --xpath "//diktID/text()" - <<<"$poems")
 poems_text=$(xmllint --format --xpath "//tekst/text()" - <<<"$poems")
 poems_owners=$(xmllint --xpath "//epost/text()" - <<<"$poems")
-
+#XML type som blir vist, stylet av diktbase.xsl
 read -a id -d' ' <<<$poems_id
 read -a email -d' ' <<<$poems_owners
 IFS=$'\n'
@@ -181,12 +182,12 @@ else
 				</tr>
 EOF
 	)
-	#
+
 fi
 
 for ((i=0;i<$length;i++))
 do
-
+#Løkke for å vise dikt nedover på en liste, incrementer med diktID
 testus="heisann"
 
 if [ $testus == "heisann" ]; then
@@ -209,7 +210,7 @@ if [ -z $cookie ]; then
 				</div>
 EOF
 		)
-
+#actions av button handlinger
 else
 	#EOF skriver inn så skriver ut
 		html+=$(
