@@ -19,7 +19,8 @@ docker rmi web;
 # lager egen cpu gruppe for at containere blir limtert til den gruppen
 
 echo "old instance removed, initiating new one ."
-
+#Lager default namespace for å få root på container som ikke 
+#har rettigheter på vertssystem
 sudo systemctl stop docker
 sudo dockerd docker daemon --userns-remap=default &
 sudo systemctl start docker
@@ -31,8 +32,11 @@ docker build -f container3/Dockerfile . -t web
 
 # kjører opp containere, med, capabilities og namespaces
 # -d for kjøre i bakgrunnen
-
-docker run -d  --userns=dockremap --cap-drop=all \
+#Setter andre begrensninger, som å forandre rettigheter
+#--cap-add=DAC_OVERRIDE - bypasser permission checks
+# Nettverksinstillinger for bridged containers
+# Prosess og minne begresninger, samt port forwarding
+docker run -d --cap-drop=all \
  --cap-add=CHOWN --cap-add=AUDIT_WRITE --cap-add=DAC_OVERRIDE \
  --cap-add=KILL --cap-add=NET_RAW --cap-add=NET_BIND_SERVICE \
  --cpu-shares 512 --pids-limit 200 --memory 512m \
