@@ -53,7 +53,7 @@ function get_all_response() { #legger en response for hver request
 character_to_byte "$response"
 }
 
-#respons med parametre
+#respons brukt til status av hva som skjer
 
 function get_response() { #legger til en response for error requests
 	response="<?xml version='1.0' encoding='UTF-8'?>"
@@ -69,12 +69,11 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
 	read -a request_string <<<"$url_path" # leser urlog legger til en array som skilles med /
 	IFS='\'
 
-
-	#Get request, vi finner alle dikt
+#Get request, vi finner alle dikt
 #hvis 3 er dikt og 4 er tom så vet vi at vi har kommet til slutten
 	if [ ${request_string[3]} = "Dikt" -a -z "${request_string[4]}" ]; then
 		allpoems=$(sqlite3 $db_path "SELECT * FROM Dikt;")
-
+#Get for alle dikt
 	        poems_in_xml=""
 
 		IFS=$'\n'
@@ -87,18 +86,18 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
 			poems_in_xml+=$(echo "</Dikt>")
 		done
 		IFS='\'
-#send tilbake respons
+#send tilbake respons som xml format, stylet av diktbase.xsl
 		get_all_response "$poems_in_xml"
 
 	# vi finner 1 dikt
-elif [ ${request_string[3]} = "Dikt" -a ${request_string[4]} = $url_end ]; then #hvis 3 er dikt og 4 er lik siste /
+elif [ ${request_string[3]} = "Dikt" -a ${request_string[4]} = $url_end ]; then #hvis 3 er Dikt tabell og 4 er lik siste / Dikt ID
 		one_poem=$(sqlite3 $db_path "SELECT * FROM Dikt WHERE diktID=$url_end;")
 #les diktet fram til |
 		if [ ${#one_poem} -gt 0 ]; then
 			IFS="|"
 			read -a poem_array <<<$one_poem
 			IFS='\'
-
+#Send 1 dikt tilbake i xml format
 			get_all_response "<Dikt><diktID>"${poem_array[0]}"</diktID><tekst>"${poem_array[1]}"</tekst><epost>"${poem_array[2]}"</epost></Dikt>" #send tilbake lest data fra database
 		else
 			get_response "0" "Dikt med id $url_end eksisterer ikke!" # dikt id er ikke funnet og diktet blir ikke returnert
@@ -106,16 +105,16 @@ elif [ ${request_string[3]} = "Dikt" -a ${request_string[4]} = $url_end ]; then 
 	fi
 fi
 
-
+#Post MEtoden
 if [ "$REQUEST_METHOD" = "POST" ]; then
-
+#Sjekker cookie
 	check_login
 
 	IFS='/'
 	read -a request_string <<<"$url_path"
 	IFS='\'
 
-	#tester login
+#hvis klient request login så sjekker man brukernavn og passord mot db
 	if [ ${request_string[3]} = "login" ]; then
 
 		if [ $logged_in = 0 ]; then
@@ -130,11 +129,12 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 				get_response "0" "bruker eksisterer ikke"
 
 			else
+#les info om brukeren
 				#bruker eksisterer
 				IFS='|'
 				read user_exists_email user_exists_password user_exists_firstname user_exists_lastname <<< "$user_exist"
 				IFS='\'
-
+#Sjekk riktig passord
 				encrypted_password=$(echo -n $password | sha512sum | head -n 1 )
 #hvis passord stemmer så selecter man riktig sesjonsID  utifra sesjonsid til bruker
 				if [ $encrypted_password = $user_exists_password ]; then
@@ -142,11 +142,11 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 
 					existing_sessions=$(sqlite3 $db_path "SELECT sesjonsID FROM Sesjon WHERE sesjonsID='$session_id';")
 					does_session_exist=${#existing_sessions} #kopierer sesjonsID fra database til å bruke som eksisterende sesjon
-					 #hvis sesjonsid ikke eksisterer, så inserter vi inn i database
+#hvis sesjonsid ikke eksisterer, så inserter vi inn i database
 					if [ $does_session_exist = 0 ]; then
 						sqlite3 $db_path "INSERT INTO Sesjon (sesjonsID,epost) \
 						VALUES('$session_id','$user_exists_email');"
-
+#Ferdig lagt inn bruker i database
 						get_response "1" "Du er logget inn som" "$session_id" "$user_exists_email" "$user_exists_firstname" "$user_exists_lastname"
 					else
 						#  hvis sesjonsid eksisterer så forsikrer vi oss om at det ikke blir duplikater
@@ -165,7 +165,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
 
 
 
-	#Logg ut, sletter sesjonsid fra database
+#Logg ut, sletter sesjonsid fra database
 elif [ ${request_string[3]} = 'logout' ]; then
 
 		if [ $logged_in = 1 ]; then
@@ -174,7 +174,7 @@ elif [ ${request_string[3]} = 'logout' ]; then
 			logged_in_session_id=$(xmllint --xpath "//sessionid/text()" - <<<"$xml_input") #Getting sessionid from bodyparameter in xml
 
 			sqlite3 $db_path "DELETE FROM Sesjon WHERE sesjonsID='$state_session_id';"
-
+#Bruker slettet og status sendes tilbake
 			get_response "1" "Bruker logget ut" "$state_session_id" "$state_email"
 		else
 			get_response "0" "Bruker må være innlogget for å logge ut duuuh"
@@ -182,17 +182,17 @@ elif [ ${request_string[3]} = 'logout' ]; then
 
 	elif [ ${request_string[3]} = "Dikt" ]; then #Post metode mot diktbase.db/Dikt
 		# Post for å lage nytt dikt i databasen
-
+#Sjekk om logget inn
 		if [ $logged_in = 1 ]; then
-
+#
 			xml_data=$BODY #leser kropp
-			poem_new=$(xmllint --xpath "//tekst/text()" - <<<"$xml_data") # får nytt dikt fra body parameteret i xml
-
+			poem_new=$(xmllint --xpath "//tekst/text()" - <<<"$xml_data") 
+#leser dikt fra klient-input
 			previous_id=$(sqlite3 $db_path "SELECT diktID FROM Dikt ORDER BY diktID DESC LIMIT 1;") #finner siste diktID i databasen
 			let "new_id=$previous_id + 1"
-
+#Finner siste DiktID i databasen, skal incrementes med +1 for at det har blitt det nyeste diktet.
 			sqlite3 $db_path "INSERT INTO Dikt VALUES('$new_id','$poem_new','$state_email');" #inserter nytt dikt til databasen
-
+#Sett inn diktet
 			get_response "1" "nytt dikt er lagret :)" "$state_session_id" "$state_email" #satt inn for innlogget bruker
 
 		else
@@ -202,29 +202,29 @@ elif [ ${request_string[3]} = 'logout' ]; then
 		get_response "0" "noe er feil med url"
 	fi
 fi
-
+#Request PUT
 if [ "$REQUEST_METHOD" = "PUT" ]; then
-
+# Sjekker login
 	check_login
 
-				IFS='/' #delimiter
+	IFS='/' #delimiter
         read -a request_string <<<$url_path
         IFS='\'
 
 	if [ $logged_in = 1 ]; then
-	#hvis logget inn
+#hvis logget inn
 
 		if [ ${request_string[4]} = $url_end ]; then
-
+#finner diktID som har kommet med PUT forepørselen
 			owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID='$url_end';") #finn epostadresse som har riktig ID
-
+#selekterer riktig diktid basert på det klient har gitt
 			if [ "$owner" == "$state_email" ]; then
-
+#Hvis riktig email (eier)
 				xml_data=$BODY
 				change=$(xmllint --xpath "//tekst/text()" - <<<"$xml_data")
 
 				sqlite3 $db_path "UPDATE Dikt SET dikt='$change' WHERE diktID='$url_end' AND epost='$state_email';"
-
+#Oppdater eksisterende dikt
 				get_response "1" "Diktnr $url_end er endret" "$logged_in_session_id" "$state_email"
 			else
 				get_response "0" "Du er ikke eier: permission denied"
@@ -238,9 +238,8 @@ if [ "$REQUEST_METHOD" = "PUT" ]; then
 	fi
 fi
 #delete funksjonen som sletter dikt fra databasen både eget dikt og alle egne dikt
-
 if [ "$REQUEST_METHOD" = "DELETE" ]; then
-
+Sjekk login
 	check_login
 
 	IFS='/' #delimiter
@@ -248,21 +247,22 @@ if [ "$REQUEST_METHOD" = "DELETE" ]; then
 	IFS='\'
 
 	if [ $logged_in = 1 ]; then
-	#hvis logget inn
+#hvis logget inn
 
 		if [ ${request_string[3]} = "Dikt" -a -z "${request_string[4]}" ]; then
+#HVis request er mot Diktbasen og tom slutt, så slett der eposten som er logget inn er eier.
 
 			sqlite3 $db_path "DELETE FROM Dikt WHERE epost='$state_email';"
 
 			get_response "1" "alle dikt som er tilknyttet $state_email er slettet" "$logged_in_session_id" "$state_email"
 # sletter dikt gitt diktID
 		elif [ ${request_string[4]} = $url_end ]; then
-
-				owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID='$url_end';") # siste del av url er sesjonsid
+# siste del av url er sesjonsid
+				owner=$(sqlite3 $db_path "SELECT epost FROM Dikt WHERE diktID='$url_end';") 
 
 				if [ "$owner" == "$state_email" ]; then
-				 #er epost like så er det sikkert at det er egen ID basert på sjekken i databasen
-
+ #er epost like så er det sikkert at det er egen ID basert på sjekken i databasen
+#SLett ved gitt DiktID
 					sqlite3 $db_path "DELETE FROM Dikt WHERE DiktID='$url_end';"
 
 					get_response "1" "Dikt $url_end slettet fra følgende bruker:" "$logged_in_session_id" "$state_email"
@@ -276,7 +276,7 @@ if [ "$REQUEST_METHOD" = "DELETE" ]; then
 			get_response "0" "DU må være innlogget..."
 	fi
 fi
-
+#headers basert på cookie
 # sessionid eksisterer og dette blir sendt
 if [ ${#session_id} -gt "0" ]; then
 	echo "Set-Cookie: session_id="$session_id"; Max-Age=7200; Path=/;"
