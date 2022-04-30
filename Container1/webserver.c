@@ -161,20 +161,26 @@ void send_response(int sd, spr_info*request, char*mime_buf) {
 				struct stat*files = malloc(sizeof(struct stat));
         			int response_fd;
 				char*header;
-
+				
+				//finner lengden på filen med fd_from_file-metoden og fstat
 			        response_fd = fd_from_file(request->url);
 			        fstat(response_fd, files);
-
-				sprintf(header, "HTTP/1.1 200 OK\nContent-Type: %s; charset=UTF-8\nConnection: Closed\nContent-Length: %d;\n\n", request->content_type,files->st_size);
+				
+				//Åpner filen som er forespurt
 				fptr = fopen(request->url, "r");
-
+				
+				//Skriver HTTP-header til variabel header
+				sprintf(header, "HTTP/1.1 200 OK\nContent-Type: %s; charset=UTF-8\nConnection: Closed\nContent-Length: %d;\n\n", request->content_type,files->st_size);
+				
+				//Sender header til socket
 				send(sd, header, strlen(header), 0);
 
+				//HTTP-kropp. Løkke som leser fil til buffer og sender til socket. Løkken går til hele filen er lest og sendt
 				size_t read_bytes;
         			while ((read_bytes = fread(response, 1, BUF_SIZE, fptr)) > 0) {
 			            	send(sd, response, read_bytes, 0);
         			}
-			        fclose(fptr);
+			        fclose(fptr); //lukker filen
 			}
 			close(respons_fd);
 		}
@@ -332,7 +338,7 @@ int main () { //Web-server
 	chroot("var/www/");
 
 	//Hvis programmet ikke kjører i container gjennomføres privilege-separasjon for ikke lenger være root. Endrer bruker til hovedbruker (1000:1000)
-	if (1 != getppid()) { //tester om foreldreprosess ikke er 1 (noe den vil være i en container)
+	if (1 != getppid()) { //tester om foreldreprosess ikke er 1 (noe den vil være når den er initiert med init i en container)
 		privilegeSeparation(1000,1000);
 	}
 
